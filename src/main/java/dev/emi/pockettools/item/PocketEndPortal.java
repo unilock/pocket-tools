@@ -34,7 +34,7 @@ public class PocketEndPortal extends Item {
 				if (serverWorld == null) {
 					return;
 				}
-				entity.moveToWorld(serverWorld);
+				entity.teleportTo(serverWorld);
 			}
 		}
 	}
@@ -58,12 +58,12 @@ public class PocketEndPortal extends Item {
 					nbt.remove("CustomModelData");
 					if (brokePortal) {
 						if (world.isClient) {
-							player.playSound(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
+							player.playSoundToPlayer(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
 						}
 					}
 					cursor.set(new ItemStack(Items.ENDER_EYE, stack.getCount() + 1));
 					if (world.isClient) {
-						player.playSound(SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
+						player.playSoundToPlayer(SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
 					}
 					return true;
 				}
@@ -74,7 +74,7 @@ public class PocketEndPortal extends Item {
 					nbt.putInt("CustomModelData", 1);
 					self.setNbt(nbt);
 					if (world.isClient) {
-						player.playSound(SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
+						player.playSoundToPlayer(SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
 					}
 					PlayerInventory playerInventory = player.getInventory();
 					for (int i = 19; i < 26; i++) {
@@ -156,7 +156,7 @@ public class PocketEndPortal extends Item {
 		playerInventory.setStack(i, stack);
 		playerInventory.offerOrDrop(temp);
 		if (playerInventory.player.getWorld().isClient()) {
-			playerInventory.player.playSound(SoundEvents.BLOCK_END_PORTAL_SPAWN, SoundCategory.BLOCKS, 1f, 1f);
+			playerInventory.player.playSoundToPlayer(SoundEvents.BLOCK_END_PORTAL_SPAWN, SoundCategory.BLOCKS, 1f, 1f);
 		}
 	}
 }

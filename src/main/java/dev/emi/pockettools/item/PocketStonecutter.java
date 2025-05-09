@@ -5,13 +5,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.StonecuttingRecipe;
@@ -85,7 +85,7 @@ public class PocketStonecutter extends Item {
 						offset = tag.getInt("offset");
 					}
 					if (offset < list.size()) {
-						ItemStack output = list.get(offset).getOutput(world.getRegistryManager()).copy();
+						ItemStack output = list.get(offset).getResult(world.getRegistryManager()).copy();
 						int count = output.getCount() * stack.getCount();
 						output.setCount(Math.min(count, output.getMaxCount()));
 						count -= output.getCount();
@@ -163,7 +163,7 @@ public class PocketStonecutter extends Item {
 				int sy = y;
 				int i = 0;
 				for (StonecuttingRecipe recipe : list) {
-					ItemStack output = recipe.getOutput(MinecraftClient.getInstance().world.getRegistryManager());
+					ItemStack output = recipe.getResult(MinecraftClient.getInstance().world.getRegistryManager());
 
 					context.drawItem(output, sx + 2, sy + 2);
 					context.drawItemInSlot(textRenderer, output, sx + 2, sy + 2);

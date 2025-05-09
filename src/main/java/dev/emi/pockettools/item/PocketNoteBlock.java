@@ -1,13 +1,13 @@
 package dev.emi.pockettools.item;
 
-import net.minecraft.block.enums.Instrument;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
@@ -37,8 +37,8 @@ public class PocketNoteBlock extends Item {
 				return true;
 			} else if (stack.getItem() instanceof BlockItem) {
 				if (nbt.contains("instrument")) {
-					Instrument instrument = getInstrument(self);
-					Instrument newInstrument = ((BlockItem) stack.getItem()).getBlock().getDefaultState().getInstrument();
+					NoteBlockInstrument instrument = getInstrument(self);
+					NoteBlockInstrument newInstrument = ((BlockItem) stack.getItem()).getBlock().getDefaultState().getInstrument();
 					if (!instrument.equals(newInstrument)) {
 						setInstrument(self, stack);
 					} else {
@@ -56,18 +56,18 @@ public class PocketNoteBlock extends Item {
 
 	public void playNote(PlayerEntity player, ItemStack stack) {
 		NbtCompound tag = stack.getOrCreateNbt();
-		Instrument instrument = getInstrument(stack);
+		NoteBlockInstrument instrument = getInstrument(stack);
 		int pitch = 0;
 		if (tag.contains("pitch")) {
 			pitch = tag.getInt("pitch");
 		}
 		float f = (float) Math.pow(2.0D, (pitch - 12) / 12.0D);
-		player.playSound(instrument.getSound().value(), SoundCategory.RECORDS, 3.0F, f);
+		player.playSoundToPlayer(instrument.getSound().value(), SoundCategory.RECORDS, 3.0F, f);
 	}
 
-	public Instrument getInstrument(ItemStack stack) {
+	public NoteBlockInstrument getInstrument(ItemStack stack) {
 		var nbt = stack.getOrCreateNbt();
-		Instrument instrument = Instrument.HARP;
+		NoteBlockInstrument instrument = NoteBlockInstrument.HARP;
 		if (nbt.contains("instrument")) {
 			var ins = ItemStack.fromNbt(nbt.getCompound("instrument"));
 			if (ins.getItem() instanceof BlockItem blockItem)
@@ -94,7 +94,7 @@ public class PocketNoteBlock extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
+	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipType context) {
 		super.appendTooltip(stack, world, tooltip, context);
 		NbtCompound nbt = stack.getOrCreateNbt();
 		if (nbt.contains("pitch")) {

@@ -1,13 +1,13 @@
 package dev.emi.pockettools.item;
 
 import dev.emi.pockettools.sound.PocketRecordSoundInstance;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
@@ -88,7 +88,7 @@ public class PocketJukebox extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
+	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipType context) {
 		NbtCompound nbt = stack.getOrCreateNbt();
 		//boolean on = false;
 		//if (nbt.contains("uuid") && nbt.getUuid("uuid").equals(activeUuid) && inst != null && !inst.isDone()) {

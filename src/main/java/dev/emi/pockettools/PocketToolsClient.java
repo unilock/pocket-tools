@@ -4,16 +4,18 @@ import dev.emi.pockettools.tooltip.ConvertibleTooltipData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.*;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PocketToolsClient implements ClientModInitializer {
 	// TODO Make this stuff data driven so I can feel better about hard coding it instead of generating
-	public static final Map<ArmorMaterial, Integer> ARMOR_COLORS = new HashMap<ArmorMaterial, Integer>();
+	public static final Map<RegistryEntry<ArmorMaterial>, Integer> ARMOR_COLORS = new HashMap<RegistryEntry<ArmorMaterial>, Integer>();
 	public static final Map<Item, Integer> ITEM_COLORS = new HashMap<Item, Integer>();
 
 	@Override
@@ -58,11 +60,9 @@ public class PocketToolsClient implements ClientModInitializer {
 					return ITEM_COLORS.get(armor.getItem());
 				}
 				if (armor.getItem() instanceof ArmorItem item) {
-					ArmorMaterial material = item.getMaterial();
-					if (item instanceof DyeableArmorItem dye) {
-						if (dye.hasColor(armor)) {
-							return dye.getColor(armor);
-						}
+					RegistryEntry<ArmorMaterial> material = item.getMaterial();
+					if (stack.isIn(ItemTags.DYEABLE)) {
+						return ColorHelper.Argb.fullAlpha(DyedColorComponent.getColor(stack, ARMOR_COLORS.getOrDefault(material, -1)));
 					}
 					return ARMOR_COLORS.getOrDefault(material, -1);
 				}

@@ -1,8 +1,10 @@
 package dev.emi.pockettools;
 
+import dev.emi.pockettools.component.PocketFurnaceComponent;
 import dev.emi.pockettools.item.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.component.ComponentType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -15,6 +17,7 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class PocketToolsMain implements ModInitializer {
 	public static final String NAMESPACE = "pockettools";
@@ -34,7 +37,10 @@ public class PocketToolsMain implements ModInitializer {
 	public static final Item POCKET_STONECUTTER = item("pocket_stonecutter", PocketStonecutter::new);
 	public static final Item POCKET_ENDER_CHEST = item("pocket_ender_chest", PocketEnderChest::new);
 
-	public static final ItemGroup POCKET_GROUP = Registry.register(Registries.ITEM_GROUP, new Identifier(NAMESPACE, "pockettools"),
+	// TODO: .cache() ?
+	public static final ComponentType<PocketFurnaceComponent> POCKET_FURNACE_DATA = componentType("pocket_furnace", builder -> builder.codec(PocketFurnaceComponent.CODEC).packetCodec(PocketFurnaceComponent.PACKET_CODEC).cache());
+
+	public static final ItemGroup POCKET_GROUP = Registry.register(Registries.ITEM_GROUP, Identifier.of(NAMESPACE, "pockettools"),
 			FabricItemGroup.builder()
 					.displayName(Text.translatable("itemGroup.pockettools.pockettools"))
 					.icon(() -> new ItemStack(PocketToolsMain.POCKET_CACTUS))
@@ -49,6 +55,10 @@ public class PocketToolsMain implements ModInitializer {
 	private static <T extends Item> T item(String name, Function<Item.Settings, T> itemCreator) {
 		T item = itemCreator.apply(new Item.Settings().maxCount(1));
 		ITEMS.add(item);
-		return Registry.register(Registries.ITEM, new Identifier(NAMESPACE, name), item);
+		return Registry.register(Registries.ITEM, Identifier.of(NAMESPACE, name), item);
+	}
+
+	private static <T> ComponentType<T> componentType(String name, UnaryOperator<ComponentType.Builder<T>> builderOperator) {
+		return Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of(NAMESPACE, name), builderOperator.apply(ComponentType.builder()).build());
 	}
 }

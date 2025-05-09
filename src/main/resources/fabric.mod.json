@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "pockettools",
-  "version": "1.2.2",
+  "version": "${version}",
   "name": "Pocket Tools",
   "description": "Tools you can fit in your pocket",
   "authors": [
@@ -25,8 +25,8 @@
       "pockettools.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.9",
-    "fabric": "*",
-    "minecraft": "~1.20"
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": "~1.21"
   }
 }
