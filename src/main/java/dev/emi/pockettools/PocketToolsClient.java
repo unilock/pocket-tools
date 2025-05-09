@@ -1,5 +1,6 @@
 package dev.emi.pockettools;
 
+import dev.emi.pockettools.component.PocketArmorStandComponent;
 import dev.emi.pockettools.tooltip.ConvertibleTooltipData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -36,23 +37,23 @@ public class PocketToolsClient implements ClientModInitializer {
 		ITEM_COLORS.put(Items.SKELETON_SKULL, ColorHelper.Argb.getArgb(255, 188, 188, 188));
 		ITEM_COLORS.put(Items.ZOMBIE_HEAD, ColorHelper.Argb.getArgb(255, 62, 105, 45));
 		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-			var nbt = stack.getOrCreateNbt();
+			var data = stack.getOrDefault(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT);
 			ItemStack armor = null;
 			if (tintIndex == 1) {
-				if (nbt.contains("feet")) {
-					armor = ItemStack.fromNbt(nbt.getCompound("feet"));
+				if (!data.feet().isEmpty()) {
+					armor = data.feet();
 				}
 			} else if (tintIndex == 2) {
-				if (nbt.contains("legs")) {
-					armor = ItemStack.fromNbt(nbt.getCompound("legs"));
+				if (!data.legs().isEmpty()) {
+					armor = data.legs();
 				}
 			} else if (tintIndex == 3) {
-				if (nbt.contains("chest")) {
-					armor = ItemStack.fromNbt(nbt.getCompound("chest"));
+				if (!data.chest().isEmpty()) {
+					armor = data.chest();
 				}
 			} else if (tintIndex == 4) {
-				if (nbt.contains("head")) {
-					armor = ItemStack.fromNbt(nbt.getCompound("head"));
+				if (!data.head().isEmpty()) {
+					armor = data.head();
 				}
 			}
 			if (armor != null) {
