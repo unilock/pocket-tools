@@ -50,7 +50,6 @@ public class PocketGrindstone extends Item {
 		builder.remove(entry -> !entry.isIn(EnchantmentTags.CURSE));
 		Set<RegistryEntry<Enchantment>> set = builder.getEnchantments();
 		EnchantmentHelper.set(stack, builder.build());
-		stack.remove(DataComponentTypes.REPAIR_COST);
 		if (stack.isOf(Items.ENCHANTED_BOOK) && set.isEmpty()) {
 			stack = new ItemStack(Items.BOOK);
 			if (copy.contains(DataComponentTypes.CUSTOM_NAME)) {
@@ -58,8 +57,14 @@ public class PocketGrindstone extends Item {
 			}
 		}
 
+		int repairCost = 0;
 		for(int i = 0; i < set.size(); ++i) {
-			stack.set(DataComponentTypes.REPAIR_COST, AnvilScreenHandler.getNextCost(stack.getOrDefault(DataComponentTypes.REPAIR_COST, 0)));
+			repairCost = AnvilScreenHandler.getNextCost(repairCost);
+		}
+		if (repairCost == 0) {
+			stack.remove(DataComponentTypes.REPAIR_COST);
+		} else {
+			stack.set(DataComponentTypes.REPAIR_COST, repairCost);
 		}
 		return stack;
 	}
