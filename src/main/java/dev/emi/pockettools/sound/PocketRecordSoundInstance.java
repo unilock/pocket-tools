@@ -19,7 +19,7 @@ public class PocketRecordSoundInstance extends EntityTrackingSoundInstance {
 	public static UUID activeUuid;
 	public static int lastCheckin;
 	private final PlayerEntity e;
-	
+
 	public PocketRecordSoundInstance(SoundEvent sound, SoundCategory soundCategory, PlayerEntity entity) {
 		super(sound, soundCategory, 1.f, 1.f, entity, 0);
 		e = entity;
@@ -28,11 +28,11 @@ public class PocketRecordSoundInstance extends EntityTrackingSoundInstance {
 	public void start() {
 		MinecraftClient.getInstance().getSoundManager().play(this);
 	}
-	
+
 	public void end() {
 		setDone();
 	}
-	
+
 	@Override
 	public void tick() {
 		super.tick();

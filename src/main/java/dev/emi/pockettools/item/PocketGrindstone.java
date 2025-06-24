@@ -23,7 +23,7 @@ public class PocketGrindstone extends Item {
 	public PocketGrindstone(Settings settings) {
 		super(settings);
 	}
-	
+
 	@Override
 	public boolean onClicked(ItemStack stack, ItemStack applied, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursor) {
 		if (clickType == ClickType.RIGHT && (applied.hasEnchantments() || applied.isOf(Items.ENCHANTED_BOOK))) {

@@ -2,6 +2,7 @@ package dev.emi.pockettools.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.emi.pockettools.PocketToolsMain;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -27,23 +28,13 @@ public record PocketArmorStandComponent(ItemStack head, ItemStack chest, ItemSta
 			PocketArmorStandComponent::feet,
 			PocketArmorStandComponent::new
 	);
-	
-	public PocketArmorStandComponent withHead(ItemStack value) {
-		return new PocketArmorStandComponent(value, chest(), legs(), feet());
+
+	// TODO: cleanup
+
+	public static void applyStack(ItemStack stack, String name, ItemStack value) {
+		stack.apply(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT, stack, (c, s) -> c.withStack(name, value));
 	}
 
-	public PocketArmorStandComponent withChest(ItemStack value) {
-		return new PocketArmorStandComponent(head(), value, legs(), feet());
-	}
-
-	public PocketArmorStandComponent withLegs(ItemStack value) {
-		return new PocketArmorStandComponent(head(), chest(), value, feet());
-	}
-
-	public PocketArmorStandComponent withFeet(ItemStack value) {
-		return new PocketArmorStandComponent(head(), chest(), legs(), value);
-	}
-	
 	public ItemStack getStack(String name) {
 		return switch (name) {
 			case "head" -> head();
@@ -54,7 +45,7 @@ public record PocketArmorStandComponent(ItemStack head, ItemStack chest, ItemSta
 		};
 	}
 
-	public PocketArmorStandComponent withStack(String name, ItemStack stack) {
+	private PocketArmorStandComponent withStack(String name, ItemStack stack) {
 		return switch (name) {
 			case "head" -> withHead(stack);
 			case "chest" -> withChest(stack);
@@ -62,5 +53,21 @@ public record PocketArmorStandComponent(ItemStack head, ItemStack chest, ItemSta
 			case "feet" -> withFeet(stack);
 			default -> throw new IllegalStateException();
 		};
+	}
+
+	private PocketArmorStandComponent withHead(ItemStack value) {
+		return new PocketArmorStandComponent(value, chest(), legs(), feet());
+	}
+
+	private PocketArmorStandComponent withChest(ItemStack value) {
+		return new PocketArmorStandComponent(head(), value, legs(), feet());
+	}
+
+	private PocketArmorStandComponent withLegs(ItemStack value) {
+		return new PocketArmorStandComponent(head(), chest(), value, feet());
+	}
+
+	private PocketArmorStandComponent withFeet(ItemStack value) {
+		return new PocketArmorStandComponent(head(), chest(), legs(), value);
 	}
 }

@@ -38,7 +38,7 @@ public class PocketEndPortal extends Item {
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean onClicked(ItemStack self, ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursor) {
 		NbtCompound nbt = self.getOrCreateNbt();

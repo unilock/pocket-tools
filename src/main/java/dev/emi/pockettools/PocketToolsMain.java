@@ -1,6 +1,7 @@
 package dev.emi.pockettools;
 
 import dev.emi.pockettools.component.PocketArmorStandComponent;
+import dev.emi.pockettools.component.PocketComposterComponent;
 import dev.emi.pockettools.component.PocketFurnaceComponent;
 import dev.emi.pockettools.item.*;
 import net.fabricmc.api.ModInitializer;
@@ -40,6 +41,7 @@ public class PocketToolsMain implements ModInitializer {
 
 	// TODO: .cache() ?
 	public static final ComponentType<PocketFurnaceComponent> POCKET_FURNACE_DATA = componentType("pocket_furnace", builder -> builder.codec(PocketFurnaceComponent.CODEC).packetCodec(PocketFurnaceComponent.PACKET_CODEC).cache());
+	public static final ComponentType<PocketComposterComponent> POCKET_COMPOSTER_DATA = componentType("pocket_composter", builder -> builder.codec(PocketComposterComponent.CODEC).packetCodec(PocketComposterComponent.PACKET_CODEC).cache());
 	public static final ComponentType<PocketArmorStandComponent> POCKET_ARMOR_STAND_DATA = componentType("pocket_armor_stand", builder -> builder.codec(PocketArmorStandComponent.CODEC).packetCodec(PocketArmorStandComponent.PACKET_CODEC).cache());
 
 	public static final ItemGroup POCKET_GROUP = Registry.register(Registries.ITEM_GROUP, Identifier.of(NAMESPACE, "pockettools"),

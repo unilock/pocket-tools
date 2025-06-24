@@ -45,7 +45,9 @@ public record PocketFurnaceComponent(ItemStack input, ItemStack fuel, ItemStack 
 			PacketCodecs.INTEGER.encode(buf, value.maxCookTime());
 		}
 	};
-	
+
+	// TODO: apply...();
+
 	public PocketFurnaceComponent withInput(ItemStack value) {
 		return new PocketFurnaceComponent(value, fuel(), output(), fuelTime(), cookTime(), maxFuelTime(), maxCookTime());
 	}

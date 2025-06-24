@@ -1,13 +1,16 @@
 package dev.emi.pockettools.item;
 
+import dev.emi.pockettools.PocketToolsMain;
+import dev.emi.pockettools.component.PocketComposterComponent;
 import net.minecraft.block.ComposterBlock;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -23,9 +26,9 @@ public class PocketComposter extends Item {
 
 	@Override
 	public boolean isItemBarVisible(ItemStack stack) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-		if (nbt.contains("fill")) {
-			int fill = nbt.getInt("fill");
+		PocketComposterComponent data = stack.get(PocketToolsMain.POCKET_COMPOSTER_DATA);
+		if (data != null) {
+			int fill = data.fill();
 			return fill != 0;
 		}
 		return false;
@@ -33,9 +36,9 @@ public class PocketComposter extends Item {
 
 	@Override
 	public int getItemBarStep(ItemStack stack) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-		if (nbt.contains("fill")) {
-			int fill = nbt.getInt("fill");
+		PocketComposterComponent data = stack.get(PocketToolsMain.POCKET_COMPOSTER_DATA);
+		if (data != null) {
+			int fill = data.fill();
 			if (fill == 8) fill = 7;
 			return Math.round(fill / 7f * 13f);
 		}
@@ -44,9 +47,9 @@ public class PocketComposter extends Item {
 
 	@Override
 	public int getItemBarColor(ItemStack stack) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-		if (nbt.contains("fill")) {
-			int fill = nbt.getInt("fill");
+		PocketComposterComponent data = stack.get(PocketToolsMain.POCKET_COMPOSTER_DATA);
+		if (data != null) {
+			int fill = data.fill();
 			if (fill == 8) {
 				return MathHelper.packRgb(3, 163, 62);
 			}
@@ -57,42 +60,32 @@ public class PocketComposter extends Item {
 
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-		int fill = 0;
-		int compost = 20;
-		if (nbt.contains("fill")) {
-			fill = nbt.getInt("fill");
-		}
-		if (nbt.contains("compost")) {
-			compost = nbt.getInt("compost");
-		}
+		PocketComposterComponent data = stack.getOrDefault(PocketToolsMain.POCKET_COMPOSTER_DATA, PocketComposterComponent.DEFAULT);
+		int fill = data.fill();
+		int compost = data.compost();
 		if (compost < 20) {
 			compost++;
-			nbt.putInt("compost", compost);
+			PocketComposterComponent.applyCompost(stack, compost);
 			if (compost >= 20) {
 				if (fill == 7) {
-					nbt.putInt("fill", 8);
+					PocketComposterComponent.applyFill(stack, 8);
 					world.playSound(null, entity.getBlockPos(), SoundEvents.BLOCK_COMPOSTER_READY, SoundCategory.BLOCKS, 1.0F, 1.0F);
-					nbt.putInt("CustomModelData", 2);
+					stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(2));
 				}
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean onClicked(ItemStack stack, ItemStack applied, Slot slot, ClickType arg, PlayerEntity player, StackReference cursor) {
 		if (arg == ClickType.RIGHT) {
 			World world = player.getWorld();
-			NbtCompound nbt = stack.getOrCreateNbt();
-			int fill = 0;
-			if (nbt.contains("fill")) {
-				fill = nbt.getInt("fill");
-			}
+			PocketComposterComponent data = stack.getOrDefault(PocketToolsMain.POCKET_COMPOSTER_DATA, PocketComposterComponent.DEFAULT);
+			int fill = data.fill();
 			if (fill == 8 && (applied.isEmpty() || (applied.getItem() == Items.BONE_MEAL && applied.getCount() < applied.getMaxCount()))) {
 				cursor.set(new ItemStack(Items.BONE_MEAL, applied.getCount() + 1));
-				nbt.putInt("fill", 0);
-				nbt.putInt("CustomModelData", 0);
-				stack.setNbt(nbt);
+				PocketComposterComponent.applyFill(stack, 0);
+				stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_COMPOSTER_EMPTY, SoundCategory.BLOCKS, 1.0F, 1.0F);
 				return true;
 			} else if (ComposterBlock.ITEM_TO_LEVEL_INCREASE_CHANCE.containsKey(applied.getItem())) {
@@ -102,13 +95,12 @@ public class PocketComposter extends Item {
 					float f = ComposterBlock.ITEM_TO_LEVEL_INCREASE_CHANCE.getFloat(applied.getItem());
 					if (f >= world.random.nextFloat()) {
 						if (fill == 6) {
-							nbt.putInt("CustomModelData", 1);
+							stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(1));
 						} else {
-							nbt.putInt("CustomModelData", -fill);
+							stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(-fill));
 						}
-						nbt.putInt("fill", fill + 1);
-						nbt.putInt("compost", 0);
-						stack.setNbt(nbt);
+						PocketComposterComponent.applyFill(stack, fill + 1);
+						PocketComposterComponent.applyCompost(stack, 0);
 						world.syncWorldEvent(1500, player.getBlockPos(), 1);
 					} else {
 						world.syncWorldEvent(1500, player.getBlockPos(), 0);

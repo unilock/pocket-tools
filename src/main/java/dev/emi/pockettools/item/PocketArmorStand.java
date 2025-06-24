@@ -89,7 +89,7 @@ public class PocketArmorStand extends Item {
 						SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
 		}
-		self.apply(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT, stack, (c, s) -> c.withStack(es.getName(), stack));
+		PocketArmorStandComponent.applyStack(self, es.getName(), stack);
 		PocketArmorStandComponent postData = self.getOrDefault(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT);
 		int mask = 0;
 		if (!postData.head().isEmpty()) {
@@ -112,21 +112,18 @@ public class PocketArmorStand extends Item {
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
 		if (!data.head().isEmpty()) {
 			stacks.add(data.head());
-			stack.apply(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT, ItemStack.EMPTY, PocketArmorStandComponent::withHead);
 		}
 		if (!data.chest().isEmpty()) {
 			stacks.add(data.chest());
-			stack.apply(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT, ItemStack.EMPTY, PocketArmorStandComponent::withChest);
 		}
 		if (!data.legs().isEmpty()) {
 			stacks.add(data.legs());
-			stack.apply(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT, ItemStack.EMPTY, PocketArmorStandComponent::withLegs);
 		}
 		if (!data.feet().isEmpty()) {
 			stacks.add(data.feet());
-			stack.apply(PocketToolsMain.POCKET_ARMOR_STAND_DATA, PocketArmorStandComponent.DEFAULT, ItemStack.EMPTY, PocketArmorStandComponent::withFeet);
 		}
-		stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT);
+		stack.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
+		stack.remove(PocketToolsMain.POCKET_ARMOR_STAND_DATA);
 		for (ItemStack s : stacks) {
 			playerInventory.offerOrDrop(s);
 		}

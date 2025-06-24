@@ -19,7 +19,7 @@ public abstract class SlotMixin {
 
 	@Shadow
 	public abstract ItemStack getStack();
-	
+
 	@Inject(at = @At("HEAD"), method = "canTakeItems", cancellable = true)
 	public void canTakeItems(PlayerEntity player, CallbackInfoReturnable<Boolean> info) {
 		ItemStack stack = this.getStack();
