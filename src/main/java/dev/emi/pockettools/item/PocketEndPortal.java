@@ -1,5 +1,11 @@
 package dev.emi.pockettools.item;
 
+import dev.emi.pockettools.PocketToolsMain;
+import dev.emi.pockettools.component.PocketEndPortalComponent;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.EndPortalBlock;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -7,7 +13,6 @@ import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
@@ -24,38 +29,38 @@ public class PocketEndPortal extends Item {
 
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-		if (nbt.contains("tp") && nbt.getBoolean("tp")) {
-			nbt.remove("tp");
+		var data = stack.get(PocketToolsMain.POCKET_END_PORTAL_DATA);
+		if (data != null && data.tp()) {
+			PocketEndPortalComponent.applyTp(stack, false);
 			// This has to happen in a tick so that there is no teleportation in the middle of a handled event
-			if (world instanceof ServerWorld && !entity.hasVehicle() && !entity.hasPassengers() && entity.canUsePortals()) {
+			if (world instanceof ServerWorld && !entity.hasVehicle() && !entity.hasPassengers() && entity.canUsePortals(false)) {
 				RegistryKey<World> registryKey = world.getRegistryKey() == World.END ? World.OVERWORLD : World.END;
 				ServerWorld serverWorld = ((ServerWorld) world).getServer().getWorld(registryKey);
 				if (serverWorld == null) {
 					return;
 				}
-				entity.teleportTo(serverWorld);
+				entity.teleportTo(((EndPortalBlock) Blocks.END_PORTAL).createTeleportTarget(serverWorld, entity, null));
 			}
 		}
 	}
 
 	@Override
 	public boolean onClicked(ItemStack self, ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursor) {
-		NbtCompound nbt = self.getOrCreateNbt();
+		var data = self.getOrDefault(PocketToolsMain.POCKET_END_PORTAL_DATA, PocketEndPortalComponent.DEFAULT);
 		World world = player.getWorld();
 		if (clickType == ClickType.RIGHT) {
-			if (nbt.contains("portal") && nbt.getBoolean("portal")) {
+			if (data.portal()) {
 				if (!world.isClient) {
 					// See inventoryTick
-					nbt.putBoolean("tp", true);
+					PocketEndPortalComponent.applyTp(self, true);
 				}
 				return true;
 			}
-			if (nbt.contains("filled") && nbt.getBoolean("filled")) {
+			if (data.filled()) {
 				if (stack.isEmpty() || (stack.getItem() == Items.ENDER_EYE && stack.getCount() < stack.getMaxCount())) {
 					boolean brokePortal = breakPortal(self, player.getInventory());
-					nbt.remove("filled");
-					nbt.remove("CustomModelData");
+					PocketEndPortalComponent.applyFilled(self, false);
+					self.remove(DataComponentTypes.CUSTOM_MODEL_DATA);
 					if (brokePortal) {
 						if (world.isClient) {
 							player.playSoundToPlayer(SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
@@ -70,9 +75,8 @@ public class PocketEndPortal extends Item {
 			} else {
 				if (stack.getItem() == Items.ENDER_EYE) {
 					stack.decrement(1);
-					nbt.putBoolean("filled", true);
-					nbt.putInt("CustomModelData", 1);
-					self.setNbt(nbt);
+					PocketEndPortalComponent.applyFilled(self, true);
+					self.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(1));
 					if (world.isClient) {
 						player.playSoundToPlayer(SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.BLOCKS, 1f, player.getRandom().nextFloat() * 0.1f + 0.9f);
 					}
@@ -101,11 +105,15 @@ public class PocketEndPortal extends Item {
 	}
 
 	public boolean isLitPortal(ItemStack stack) {
-		return stack.getItem() == this && stack.hasNbt() && stack.getNbt().contains("portal") && stack.getNbt().getBoolean("portal");
+		if (stack.getItem() != this) return false;
+		var data = stack.get(PocketToolsMain.POCKET_END_PORTAL_DATA);
+		return stack.get(PocketToolsMain.POCKET_END_PORTAL_DATA) != null && data.portal();
 	}
 
 	public boolean isFilledPortal(ItemStack stack) {
-		return stack.getItem() == this && stack.hasNbt() && stack.getNbt().contains("filled") && stack.getNbt().getBoolean("filled");
+		if (stack.getItem() != this) return false;
+		var data = stack.get(PocketToolsMain.POCKET_END_PORTAL_DATA);
+		return data != null && data.filled();
 	}
 
 	public boolean breakPortal(ItemStack self, PlayerInventory playerInventory) {
@@ -149,10 +157,8 @@ public class PocketEndPortal extends Item {
 	public void fillPortal(int i, PlayerInventory playerInventory) {
 		ItemStack temp = playerInventory.getStack(i);
 		ItemStack stack = new ItemStack(this);
-		NbtCompound nbt = new NbtCompound();
-		nbt.putBoolean("portal", true);
-		nbt.putInt("CustomModelData", 2);
-		stack.setNbt(nbt);
+		stack.set(PocketToolsMain.POCKET_END_PORTAL_DATA, PocketEndPortalComponent.DEFAULT.withPortal(true));
+		stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(2));
 		playerInventory.setStack(i, stack);
 		playerInventory.offerOrDrop(temp);
 		if (playerInventory.player.getWorld().isClient()) {
