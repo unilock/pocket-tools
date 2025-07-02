@@ -31,15 +31,10 @@ public class PocketEndPortal extends Item {
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
 		var data = stack.get(PocketToolsMain.POCKET_END_PORTAL_DATA);
 		if (data != null && data.tp()) {
-			PocketEndPortalComponent.applyTp(stack, false);
 			// This has to happen in a tick so that there is no teleportation in the middle of a handled event
-			if (world instanceof ServerWorld && !entity.hasVehicle() && !entity.hasPassengers() && entity.canUsePortals(false)) {
-				RegistryKey<World> registryKey = world.getRegistryKey() == World.END ? World.OVERWORLD : World.END;
-				ServerWorld serverWorld = ((ServerWorld) world).getServer().getWorld(registryKey);
-				if (serverWorld == null) {
-					return;
-				}
-				entity.teleportTo(((EndPortalBlock) Blocks.END_PORTAL).createTeleportTarget(serverWorld, entity, null));
+			if (world instanceof ServerWorld && entity.canUsePortals(false)) {
+				PocketEndPortalComponent.applyTp(stack, false);
+				entity.teleportTo(((EndPortalBlock) Blocks.END_PORTAL).createTeleportTarget((ServerWorld) world, entity, null));
 			}
 		}
 	}
