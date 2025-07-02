@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.util.dynamic.Codecs;
 
 public record PocketFurnaceComponent(ItemStack input, ItemStack fuel, ItemStack output, int fuelTime, int cookTime, int maxFuelTime, int maxCookTime) {
 	public static final PocketFurnaceComponent DEFAULT = new PocketFurnaceComponent(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, 0, 0, 0, 0);
@@ -15,10 +14,10 @@ public record PocketFurnaceComponent(ItemStack input, ItemStack fuel, ItemStack 
 			ItemStack.OPTIONAL_CODEC.fieldOf("input").forGetter(PocketFurnaceComponent::input),
 			ItemStack.OPTIONAL_CODEC.fieldOf("fuel").forGetter(PocketFurnaceComponent::fuel),
 			ItemStack.OPTIONAL_CODEC.fieldOf("output").forGetter(PocketFurnaceComponent::output),
-			Codecs.NONNEGATIVE_INT.optionalFieldOf("fuelTime", 0).forGetter(PocketFurnaceComponent::fuelTime),
-			Codecs.NONNEGATIVE_INT.optionalFieldOf("cookTime", 0).forGetter(PocketFurnaceComponent::cookTime),
-			Codecs.NONNEGATIVE_INT.optionalFieldOf("maxFuelTime", 0).forGetter(PocketFurnaceComponent::maxFuelTime),
-			Codecs.NONNEGATIVE_INT.optionalFieldOf("maxCookTime", 0).forGetter(PocketFurnaceComponent::maxCookTime)
+			Codec.INT.optionalFieldOf("fuelTime", 0).forGetter(PocketFurnaceComponent::fuelTime),
+			Codec.INT.optionalFieldOf("cookTime", 0).forGetter(PocketFurnaceComponent::cookTime),
+			Codec.INT.optionalFieldOf("maxFuelTime", 0).forGetter(PocketFurnaceComponent::maxFuelTime),
+			Codec.INT.optionalFieldOf("maxCookTime", 0).forGetter(PocketFurnaceComponent::maxCookTime)
 	).apply(inst, PocketFurnaceComponent::new));
 
 	public static final PacketCodec<RegistryByteBuf, PocketFurnaceComponent> PACKET_CODEC = new PacketCodec<RegistryByteBuf, PocketFurnaceComponent>() {

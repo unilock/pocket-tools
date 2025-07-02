@@ -1,5 +1,7 @@
 package dev.emi.pockettools.item;
 
+import dev.emi.pockettools.PocketToolsMain;
+import dev.emi.pockettools.component.PocketStonecutterComponent;
 import dev.emi.pockettools.tooltip.ConvertibleTooltipData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -7,14 +9,14 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipData;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.StonecuttingRecipe;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -35,31 +37,28 @@ public class PocketStonecutter extends Item {
 	@Override
 	public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
 		World world = player.getWorld();
-		NbtCompound nbt = stack.getOrCreateNbt();
+		var data = stack.getOrDefault(PocketToolsMain.POCKET_STONECUTTER_DATA, PocketStonecutterComponent.DEFAULT);
 		if (clickType == ClickType.RIGHT) {
 			if (otherStack.isEmpty()) {
-				if (nbt.contains("base")) {
-					ItemStack base = ItemStack.fromNbt(nbt.getCompound("base"));
-					List list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SimpleInventory(base), world);
-					int offset = -1;
-					if (nbt.contains("offset")) {
-						offset = nbt.getInt("offset");
-					}
+				if (!data.base().isEmpty()) {
+					ItemStack base = data.base();
+					List<RecipeEntry<StonecuttingRecipe>> list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SingleStackRecipeInput(base), world);
+					int offset = data.offset();
 					offset++;
 					if (offset >= list.size()) {
 						offset = 0;
 					}
-					nbt.putInt("offset", offset);
+					PocketStonecutterComponent.applyOffset(stack, offset);
 					if (world.isClient) {
 						world.playSound(player, player.getBlockPos(), SoundEvents.UI_STONECUTTER_SELECT_RECIPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					}
 					return true;
 				}
 			} else {
-				List list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SimpleInventory(otherStack), world);
+				List<RecipeEntry<StonecuttingRecipe>> list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SingleStackRecipeInput(otherStack), world);
 				if (!list.isEmpty()) {
-					nbt.put("base", otherStack.writeNbt(new NbtCompound()));
-					nbt.putInt("offset", 0);
+					PocketStonecutterComponent.applyBase(stack, otherStack);
+					PocketStonecutterComponent.applyOffset(stack, 0);
 					if (world.isClient) {
 						world.playSound(player, player.getBlockPos(), SoundEvents.UI_STONECUTTER_SELECT_RECIPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					}
@@ -75,17 +74,14 @@ public class PocketStonecutter extends Item {
 		World world = player.getWorld();
 		ItemStack stack = slot.getStack();
 		if (clickType == ClickType.RIGHT) {
-			NbtCompound tag = self.getOrCreateNbt();
-			if (tag.contains("base")) {
-				ItemStack base = ItemStack.fromNbt(tag.getCompound("base"));
+			var data = self.getOrDefault(PocketToolsMain.POCKET_STONECUTTER_DATA, PocketStonecutterComponent.DEFAULT);
+			if (!data.base().isEmpty()) {
+				ItemStack base = data.base();
 				if (ItemStack.areItemsEqual(base, stack)) {
-					List<StonecuttingRecipe> list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SimpleInventory(stack), world);
-					int offset = 0;
-					if (tag.contains("offset")) {
-						offset = tag.getInt("offset");
-					}
+					List<RecipeEntry<StonecuttingRecipe>> list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SingleStackRecipeInput(stack), world);
+					int offset = data.offset();
 					if (offset < list.size()) {
-						ItemStack output = list.get(offset).getResult(world.getRegistryManager()).copy();
+						ItemStack output = list.get(offset).value().getResult(world.getRegistryManager()).copy();
 						int count = output.getCount() * stack.getCount();
 						output.setCount(Math.min(count, output.getMaxCount()));
 						count -= output.getCount();
@@ -115,17 +111,17 @@ public class PocketStonecutter extends Item {
 	}
 
 	class PocketStonecutterTooltip implements ConvertibleTooltipData, TooltipComponent {
-		public List<StonecuttingRecipe> list = new ArrayList<>();
+		public List<RecipeEntry<StonecuttingRecipe>> list = new ArrayList<>();
 		public ItemStack stack;
 
 		public PocketStonecutterTooltip(ItemStack stack) {
 			this.stack = stack;
-			NbtCompound nbt = stack.getOrCreateNbt();
-			if (nbt.contains("base")) {
-				ItemStack base = ItemStack.fromNbt(nbt.getCompound("base"));
+			var data = stack.getOrDefault(PocketToolsMain.POCKET_STONECUTTER_DATA, PocketStonecutterComponent.DEFAULT);
+			if (!data.base().isEmpty()) {
+				ItemStack base = data.base();
 				MinecraftClient client = MinecraftClient.getInstance();
 				ClientWorld world = client.world;
-				list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SimpleInventory(base), world);
+				list = world.getRecipeManager().getAllMatches(RecipeType.STONECUTTING, new SingleStackRecipeInput(base), world);
 			}
 		}
 
@@ -147,23 +143,20 @@ public class PocketStonecutter extends Item {
 			return 18 * 4 + 4;
 		}
 
-		private static final Identifier STONECUTTER_ICONS_TEXTURE = new Identifier("textures/gui/container/stonecutter.png");
+		private static final Identifier STONECUTTER_ICONS_TEXTURE = Identifier.ofVanilla("textures/gui/container/stonecutter.png");
 
 		@Override
 		public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
-			NbtCompound nbt = stack.getOrCreateNbt();
+			var data = stack.getOrDefault(PocketToolsMain.POCKET_STONECUTTER_DATA, PocketStonecutterComponent.DEFAULT);
 			if (!list.isEmpty()) {
-				int offset = 0;
-				if (nbt.contains("offset")) {
-					offset = nbt.getInt("offset");
-				}
+				int offset = data.offset();
 
 				final int maxX = x + 4 * 18;
 				int sx = x;
 				int sy = y;
 				int i = 0;
-				for (StonecuttingRecipe recipe : list) {
-					ItemStack output = recipe.getResult(MinecraftClient.getInstance().world.getRegistryManager());
+				for (RecipeEntry<StonecuttingRecipe> entry : list) {
+					ItemStack output = entry.value().getResult(MinecraftClient.getInstance().world.getRegistryManager());
 
 					context.drawItem(output, sx + 2, sy + 2);
 					context.drawItemInSlot(textRenderer, output, sx + 2, sy + 2);

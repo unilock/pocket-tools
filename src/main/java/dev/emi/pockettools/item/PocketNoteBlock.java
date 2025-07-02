@@ -94,7 +94,7 @@ public class PocketNoteBlock extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipType context) {
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
 		super.appendTooltip(stack, world, tooltip, context);
 		NbtCompound nbt = stack.getOrCreateNbt();
 		if (nbt.contains("pitch")) {

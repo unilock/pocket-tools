@@ -88,7 +88,7 @@ public class PocketJukebox extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipType context) {
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
 		NbtCompound nbt = stack.getOrCreateNbt();
 		//boolean on = false;
 		//if (nbt.contains("uuid") && nbt.getUuid("uuid").equals(activeUuid) && inst != null && !inst.isDone()) {

@@ -1,9 +1,6 @@
 package dev.emi.pockettools;
 
-import dev.emi.pockettools.component.PocketArmorStandComponent;
-import dev.emi.pockettools.component.PocketComposterComponent;
-import dev.emi.pockettools.component.PocketEndPortalComponent;
-import dev.emi.pockettools.component.PocketFurnaceComponent;
+import dev.emi.pockettools.component.*;
 import dev.emi.pockettools.item.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -45,10 +42,10 @@ public class PocketToolsMain implements ModInitializer {
 	public static final ComponentType<PocketComposterComponent> POCKET_COMPOSTER_DATA = componentType("pocket_composter", builder -> builder.codec(PocketComposterComponent.CODEC).packetCodec(PocketComposterComponent.PACKET_CODEC).cache());
 	public static final ComponentType<PocketEndPortalComponent> POCKET_END_PORTAL_DATA = componentType("pocket_end_portal", builder -> builder.codec(PocketEndPortalComponent.CODEC).packetCodec(PocketEndPortalComponent.PACKET_CODEC).cache());
 	public static final ComponentType<PocketArmorStandComponent> POCKET_ARMOR_STAND_DATA = componentType("pocket_armor_stand", builder -> builder.codec(PocketArmorStandComponent.CODEC).packetCodec(PocketArmorStandComponent.PACKET_CODEC).cache());
+	public static final ComponentType<PocketStonecutterComponent> POCKET_STONECUTTER_DATA = componentType("pocket_stonecutter", builder -> builder.codec(PocketStonecutterComponent.CODEC).packetCodec(PocketStonecutterComponent.PACKET_CODEC).cache());
 	// TODO:
 	//  PocketJukeboxComponent
 	//  PocketNoteBlockComponent
-	//  PocketStonecutterComponent
 
 	public static final ItemGroup POCKET_GROUP = Registry.register(Registries.ITEM_GROUP, Identifier.of(NAMESPACE, "pockettools"),
 			FabricItemGroup.builder()

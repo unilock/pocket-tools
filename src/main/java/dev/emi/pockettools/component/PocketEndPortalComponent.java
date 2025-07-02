@@ -31,23 +31,19 @@ public record PocketEndPortalComponent(boolean filled, boolean portal, boolean t
 		stack.apply(PocketToolsMain.POCKET_END_PORTAL_DATA, DEFAULT, value, PocketEndPortalComponent::withFilled);
 	}
 
-	public static void applyPortal(ItemStack stack, boolean value) {
-		stack.apply(PocketToolsMain.POCKET_END_PORTAL_DATA, DEFAULT, value, PocketEndPortalComponent::withPortal);
-	}
-
 	public static void applyTp(ItemStack stack, boolean value) {
 		stack.apply(PocketToolsMain.POCKET_END_PORTAL_DATA, DEFAULT, value, PocketEndPortalComponent::withTp);
 	}
 
-	public PocketEndPortalComponent withFilled(boolean value) {
+	private PocketEndPortalComponent withFilled(boolean value) {
 		return new PocketEndPortalComponent(value, portal, tp);
+	}
+
+	private PocketEndPortalComponent withTp(boolean value) {
+		return new PocketEndPortalComponent(filled, portal, value);
 	}
 
 	public PocketEndPortalComponent withPortal(boolean value) {
 		return new PocketEndPortalComponent(filled, value, tp);
-	}
-
-	public PocketEndPortalComponent withTp(boolean value) {
-		return new PocketEndPortalComponent(filled, portal, value);
 	}
 }
