@@ -23,9 +23,9 @@ public abstract class SlotMixin {
 	@Inject(at = @At("HEAD"), method = "canTakeItems", cancellable = true)
 	public void canTakeItems(PlayerEntity player, CallbackInfoReturnable<Boolean> info) {
 		ItemStack stack = this.getStack();
-		if (stack.getItem() == PocketToolsMain.POCKET_END_PORTAL && stack.hasNbt()) {
-			NbtCompound nbt = stack.getNbt();
-			if ((nbt.contains("portal") && nbt.getBoolean("portal")) || (nbt.contains("filled") && nbt.getBoolean("filled"))) {
+		if (stack.getItem() == PocketToolsMain.POCKET_END_PORTAL && stack.contains(PocketToolsMain.POCKET_END_PORTAL_DATA)) {
+			var data = stack.get(PocketToolsMain.POCKET_END_PORTAL_DATA);
+			if (data.portal() || data.filled()) {
 				if (!player.isCreative()) {
 					info.setReturnValue(false);
 				}
